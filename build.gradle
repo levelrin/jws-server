@@ -1,0 +1,218 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+    id 'com.github.spotbugs' version '4.6.0'
+    id 'pmd'
+    id 'checkstyle'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group 'com.levelrin'
+version '0.1.0'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    testCompile 'org.hamcrest:hamcrest:2.2'
+    compile 'net.jcip:jcip-annotations:1.0'
+    compile 'com.github.spotbugs:spotbugs-annotations:4.1.4'
+}
+
+test {
+    useJUnitPlatform()
+    dependsOn 'cleanTest'
+    testLogging {
+        events 'skipped', 'failed'
+        exceptionFormat = 'full'
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                enabled = true
+                counter = 'INSTRUCTION'
+                value = 'COVEREDRATIO'
+                minimum = 0.90000
+            }
+            limit {
+                enabled = true
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.90000
+            }
+            limit {
+                enabled = true
+                counter = 'COMPLEXITY'
+                value = 'COVEREDRATIO'
+                minimum = 0.90000
+            }
+            limit {
+                enabled = true
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.89000
+            }
+            limit {
+                enabled = true
+                counter = 'METHOD'
+                value = 'COVEREDRATIO'
+                minimum = 0.90000
+            }
+            limit {
+                enabled = true
+                counter = 'CLASS'
+                value = 'COVEREDRATIO'
+                minimum = 0.90000
+            }
+        }
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled true
+    }
+}
+
+check.dependsOn jacocoTestCoverageVerification
+check.dependsOn jacocoTestReport
+
+spotbugs {
+    toolVersion = '4.1.4'
+    ignoreFailures = false
+    effort = 'max'
+}
+spotbugsMain {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/main/spotbugs.html")
+            stylesheet = 'fancy-hist.xsl'
+        }
+    }
+}
+spotbugsTest {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/test/spotbugs.html")
+            stylesheet = 'fancy-hist.xsl'
+        }
+    }
+}
+
+pmd {
+    toolVersion = '6.21.0'
+    ignoreFailures = false
+    ruleSetFiles = files('config/pmd/ruleSet.xml')
+    ruleSets = []
+}
+tasks.withType(Pmd) {
+    reports {
+        xml.enabled true
+        html.enabled true
+    }
+}
+
+checkstyle {
+    toolVersion '8.37'
+    ignoreFailures = false
+    configFile = file('config/checkstyle/checkstyle.xml')
+    configProperties = [
+        'checkstyle.header.file': file('config/checkstyle/java.header'),
+        'checkstyle.suppression.file': file('config/checkstyle/suppression.xml')
+    ]
+}
+tasks.withType(Checkstyle) {
+    reports {
+        xml.enabled true
+        html.enabled true
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'jws-server'
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom {
+                name = 'jws-server'
+                description = 'Java library for building a WebSocket based server.'
+                url = 'https://github.com/levelrin/jws-server'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://github.com/levelrin/jws-server/blob/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'levelrin'
+                        name = 'Rin'
+                        email = 'levelrin@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git@github.com:levelrin/jws-server.git'
+                    developerConnection = 'scm:git:git@github.com:levelrin/jws-server.git'
+                    url = 'https://github.com/levelrin/jws-server'
+                }
+            }
+
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+            credentials {
+                def ossrhUser = project.hasProperty('ossrhUser') ? ossrhUser : 'fakeUser'
+                def ossrhPassword = project.hasProperty('ossrhPassword') ? ossrhPassword : 'fakePassword'
+
+                username ossrhUser
+                password ossrhPassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
