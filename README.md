@@ -1,3 +1,4 @@
+[![CircleCI](https://circleci.com/gh/levelrin/jws-server.svg?style=svg)](https://circleci.com/gh/levelrin/jws-server)
 [![Build Status](https://travis-ci.org/levelrin/jws-server.svg?branch=main)](https://travis-ci.org/levelrin/jws-server)
 [![Test Coverage](https://img.shields.io/codecov/c/github/levelrin/jws-server.svg)](https://codecov.io/github/levelrin/jws-server?branch=main)
 [![Maven Central](https://img.shields.io/maven-central/v/com.levelrin/jws-server.svg)](https://maven-badges.herokuapp.com/maven-central/com.levelrin/jws-server)
