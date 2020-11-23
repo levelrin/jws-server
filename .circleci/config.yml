@@ -1,0 +1,15 @@
+version: 2.1
+jobs:
+  build:
+    machine:
+      image: ubuntu-2004:202010-01
+    steps:
+      - run:
+          name: Build a Docker image.
+          command: docker build -t=ci .
+      - run:
+          name: Run the Docker container. The build folder is shared so we can upload the coverage report.
+          command: docker container run -v $(pwd)/build:/usr/src/myapp/build ci
+      - run:
+          command: bash <(curl -s https://codecov.io/bash)
+          when: on_success
