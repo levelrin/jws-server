@@ -5,6 +5,7 @@ jobs:
       image: ubuntu-2004:202010-01
     working_directory: ~/jws-server
     steps:
+      - checkout
       - run:
           name: Build a Docker image.
           command: docker build -t=ci .
