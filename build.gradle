@@ -11,7 +11,7 @@ plugins {
 group 'com.levelrin'
 version '0.1.0'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 1.15
 
 repositories {
     mavenCentral()
@@ -22,7 +22,7 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     testCompile 'org.hamcrest:hamcrest:2.2'
     compile 'net.jcip:jcip-annotations:1.0'
-    compile 'com.github.spotbugs:spotbugs-annotations:4.1.4'
+    compile 'com.github.spotbugs:spotbugs-annotations:4.2.0'
 }
 
 test {
@@ -32,6 +32,10 @@ test {
         events 'skipped', 'failed'
         exceptionFormat = 'full'
     }
+}
+
+jacoco {
+    toolVersion = '0.8.6'
 }
 
 jacocoTestCoverageVerification {
@@ -88,7 +92,7 @@ check.dependsOn jacocoTestCoverageVerification
 check.dependsOn jacocoTestReport
 
 spotbugs {
-    toolVersion = '4.1.4'
+    toolVersion = '4.2.0'
     ignoreFailures = false
     effort = 'max'
 }
@@ -112,7 +116,7 @@ spotbugsTest {
 }
 
 pmd {
-    toolVersion = '6.21.0'
+    toolVersion = '6.30.0'
     ignoreFailures = false
     ruleSetFiles = files('config/pmd/ruleSet.xml')
     ruleSets = []
@@ -125,7 +129,7 @@ tasks.withType(Pmd) {
 }
 
 checkstyle {
-    toolVersion '8.37'
+    toolVersion '8.38'
     ignoreFailures = false
     configFile = file('config/checkstyle/checkstyle.xml')
     configProperties = [
