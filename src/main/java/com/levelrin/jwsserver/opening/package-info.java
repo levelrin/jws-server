@@ -6,6 +6,6 @@
  */
 
 /**
- * Root package of this library.
+ * This package contains classes related to opening handshake.
  */
-package com.levelrin.jwsserver;
+package com.levelrin.jwsserver.opening;
