@@ -10,11 +10,11 @@ package com.levelrin.jwsserver;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Tests.
@@ -23,16 +23,24 @@ final class WithThreadTest {
 
     @Test
     public void shouldCreateNewThread() throws InterruptedException {
-        final CountDownLatch latch = new CountDownLatch(1);
         final ExecutorService executorService = Executors.newCachedThreadPool();
+        final AtomicBoolean executed = new AtomicBoolean(false);
         new WithThread(
             executorService,
-            latch::countDown
+            () -> executed.set(true)
         ).start();
         final int timeout = 100;
-        if (!latch.await(timeout, TimeUnit.MILLISECONDS)) {
-            throw new IllegalStateException("It didn't execute the encapsulated object.");
+        executorService.shutdown();
+        final boolean terminated = executorService.awaitTermination(timeout, TimeUnit.MILLISECONDS);
+        if (!terminated) {
+            throw new IllegalStateException(
+                "The encapsulated object was not able to finish its task before the timeout."
+            );
         }
+        MatcherAssert.assertThat(
+            executed.get(),
+            CoreMatchers.equalTo(true)
+        );
         MatcherAssert.assertThat(
             ((ThreadPoolExecutor) executorService).getCompletedTaskCount(),
             CoreMatchers.equalTo(1L)
