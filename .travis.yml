@@ -1,13 +1,12 @@
-language: java
-
 services:
   - docker
 
-before_install:
-  - docker build -t=ci .
-
 script:
-  - docker container run -v $(pwd)/build:/usr/src/myapp/build ci
+  - docker run --name ci -v $(pwd)/build:/usr/src/myapp/build -it -d openjdk:15.0.2-oraclelinux7 /bin/bash
+  - docker cp . ci:/usr/src/myapp
+  - docker exec -w /usr/src/myapp ci ./gradlew build
+  - docker stop ci
+  - docker rm ci
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
