@@ -5,7 +5,7 @@
  * See the details at https://github.com/levelrin/jws-server/blob/main/LICENSE
  */
 
-package com.levelrin.jwsserver.opening;
+package com.levelrin.jwsserver;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.function.Function;
  * It's responsible for parsing the HTTP headers from the request lines.
  * The keys and values of the header will be all capitalized for the case-insensitive validations later.
  */
-public final class OnHeaders implements Opening {
+public final class OnHeaders implements WsServer {
 
     /**
      * HTTP request lines from the client.
@@ -25,26 +25,25 @@ public final class OnHeaders implements Opening {
     private final List<String> lines;
 
     /**
-     * You can do something with the HTTP headers with this.
+     * You can do something with the HTTP headers using this.
      * The map represents the HTTP headers.
      * The keys and values of the header will be all capitalized
      * for the case-insensitive validations later.
      */
-    @SuppressWarnings("PMD.AvoidFieldNameMatchingTypeName")
-    private final Function<Map<String, String>, Opening> onHeaders;
+    private final Function<Map<String, String>, WsServer> withHeaders;
 
     /**
      * Constructor.
      * @param lines See {@link OnHeaders#lines}.
-     * @param onHeaders See {@link OnHeaders#onHeaders}.
+     * @param withHeaders See {@link OnHeaders#withHeaders}.
      */
-    public OnHeaders(final List<String> lines, final Function<Map<String, String>, Opening> onHeaders) {
+    public OnHeaders(final List<String> lines, final Function<Map<String, String>, WsServer> withHeaders) {
         this.lines = lines;
-        this.onHeaders = onHeaders;
+        this.withHeaders = withHeaders;
     }
 
     @Override
-    public OpeningResult handshake() {
+    public void start() {
         final Map<String, String> headers = new HashMap<>();
         for (final String line : this.lines.subList(1, this.lines.size())) {
             if (line.isEmpty()) {
@@ -56,7 +55,7 @@ public final class OnHeaders implements Opening {
                 pair[1].toUpperCase(Locale.ROOT).trim()
             );
         }
-        return this.onHeaders.apply(headers).handshake();
+        this.withHeaders.apply(headers).start();
     }
 
 }

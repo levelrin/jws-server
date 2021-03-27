@@ -5,7 +5,7 @@
  * See the details at https://github.com/levelrin/jws-server/blob/main/LICENSE
  */
 
-package com.levelrin.jwsserver.opening;
+package com.levelrin.jwsserver;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
@@ -37,9 +37,9 @@ final class OnHeadersTest {
             lines,
             headers -> {
                 actual.putAll(headers);
-                return Mockito.mock(Opening.class);
+                return Mockito.mock(WsServer.class);
             }
-        ).handshake();
+        ).start();
         MatcherAssert.assertThat(
             actual,
             CoreMatchers.allOf(
