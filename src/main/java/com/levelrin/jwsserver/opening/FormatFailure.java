@@ -8,9 +8,9 @@
 package com.levelrin.jwsserver.opening;
 
 /**
- * A decorator to wrap the opening handshake result and form a HTTP response message.
+ * A decorator to wrap the failed opening handshake result and form a HTTP response message.
  */
-public final class FormatResult implements Opening {
+public final class FormatFailure implements Opening {
 
     /**
      * We will encapsulate this.
@@ -19,9 +19,9 @@ public final class FormatResult implements Opening {
 
     /**
      * Constructor.
-     * @param origin See {@link FormatResult#origin}.
+     * @param origin See {@link FormatFailure#origin}.
      */
-    public FormatResult(final Opening origin) {
+    public FormatFailure(final Opening origin) {
         this.origin = origin;
     }
 
