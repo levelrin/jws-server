@@ -14,7 +14,8 @@ import java.util.function.Function;
 /**
  * It's responsible for running the {@link Opening#handshake()},
  * which generates {@link OpeningResult}.
- * We can pass a function to do something with the opening handshake result.
+ * We can pass two functions to do something with the opening handshake result.
+ * One for the successful handshake, another for the failed handshake.
  */
 public final class OnOpeningResult implements WsServer {
 
@@ -24,25 +25,35 @@ public final class OnOpeningResult implements WsServer {
     private final Opening opening;
 
     /**
-     * We can do something with the handshake result using this.
+     * A function that we will use when the opening handshake was successful.
      */
-    private final Function<OpeningResult, WsServer> onResult;
+    private final Function<OpeningResult, WsServer> onSuccess;
+
+    /**
+     * A function that we will use when the opening handshake failed.
+     */
+    private final Function<OpeningResult, WsServer> onFailure;
 
     /**
      * Constructor.
      * @param opening See {@link OnOpeningResult#opening}.
-     * @param onResult See {@link OnOpeningResult#onResult}.
+     * @param onSuccess See {@link OnOpeningResult#onSuccess}.
+     * @param onFailure See {@link OnOpeningResult#onFailure}.
      */
-    public OnOpeningResult(final Opening opening, final Function<OpeningResult, WsServer> onResult) {
+    public OnOpeningResult(final Opening opening, final Function<OpeningResult, WsServer> onSuccess, final Function<OpeningResult, WsServer> onFailure) {
         this.opening = opening;
-        this.onResult = onResult;
+        this.onSuccess = onSuccess;
+        this.onFailure = onFailure;
     }
 
     @Override
     public void start() {
-        this.onResult.apply(
-            this.opening.handshake()
-        ).start();
+        final OpeningResult result = this.opening.handshake();
+        if (result.success()) {
+            this.onSuccess.apply(result);
+        } else {
+            this.onFailure.apply(result);
+        }
     }
 
 }

@@ -21,7 +21,35 @@ import java.util.concurrent.atomic.AtomicReference;
 final class OnOpeningResultTest {
 
     @Test
-    public void shouldExecuteOpeningHandshake() {
+    public void shouldRunSuccessFunctionOnSuccess() {
+        final Opening fakeOpening = Mockito.mock(Opening.class);
+        final OpeningResult fakeResult = Mockito.mock(OpeningResult.class);
+        Mockito.when(fakeResult.success()).thenReturn(true);
+        Mockito.when(fakeResult.message()).thenReturn("The opening handshake was successful!");
+        Mockito.when(fakeOpening.handshake()).thenReturn(fakeResult);
+        final AtomicReference<OpeningResult> resultCache = new AtomicReference<>();
+        new OnOpeningResult(
+            fakeOpening,
+            success -> {
+                resultCache.set(success);
+                return Mockito.mock(WsServer.class);
+            },
+            failure -> {
+                throw new IllegalStateException("Failure function was executed.");
+            }
+        ).start();
+        MatcherAssert.assertThat(
+            resultCache.get().success(),
+            CoreMatchers.equalTo(true)
+        );
+        MatcherAssert.assertThat(
+            resultCache.get().message(),
+            CoreMatchers.equalTo("The opening handshake was successful!")
+        );
+    }
+
+    @Test
+    public void shouldRunFailureFunctionOnFailure() {
         final Opening fakeOpening = Mockito.mock(Opening.class);
         final OpeningResult fakeResult = Mockito.mock(OpeningResult.class);
         Mockito.when(fakeResult.success()).thenReturn(false);
@@ -30,7 +58,13 @@ final class OnOpeningResultTest {
         final AtomicReference<OpeningResult> resultCache = new AtomicReference<>();
         new OnOpeningResult(
             fakeOpening,
-            result -> () -> resultCache.set(result)
+            success -> {
+                throw new IllegalStateException("Success function was executed.");
+            },
+            failure -> {
+                resultCache.set(failure);
+                return Mockito.mock(WsServer.class);
+            }
         ).start();
         MatcherAssert.assertThat(
             resultCache.get().success(),
