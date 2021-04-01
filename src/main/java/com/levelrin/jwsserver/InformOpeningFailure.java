@@ -14,6 +14,8 @@ import java.io.PrintWriter;
  * A decorator to respond to the client when the opening handshake failed.
  * It will reply to the client and close the socket.
  * If the opening handshake was successful, it will run the encapsulated object.
+ *
+ * todo: remove the condition because OnOpeningResult is checking already.
  */
 public final class InformOpeningFailure implements WsServer {
 
