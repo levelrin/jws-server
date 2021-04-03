@@ -13,7 +13,6 @@ import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import java.io.PrintWriter;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -35,8 +34,7 @@ final class InformOpeningFailureTest {
         Mockito.when(openingResult.message()).thenReturn("Task failed successfully.");
         new InformOpeningFailure(
             writer,
-            openingResult,
-            Mockito.mock(WsServer.class)
+            openingResult
         ).start();
         MatcherAssert.assertThat(
             reply.get(),
@@ -44,27 +42,6 @@ final class InformOpeningFailureTest {
         );
         Mockito.verify(writer).flush();
         Mockito.verify(writer).close();
-    }
-
-    @Test
-    public void shouldUseOriginOnSuccess() {
-        final OpeningResult openingResult = Mockito.mock(OpeningResult.class);
-        Mockito.doReturn(true).when(openingResult).success();
-        final WsServer origin = Mockito.mock(WsServer.class);
-        final AtomicBoolean used = new AtomicBoolean(false);
-        Mockito.doAnswer(invocation -> {
-            used.set(true);
-            return used;
-        }).when(origin).start();
-        new InformOpeningFailure(
-            Mockito.mock(PrintWriter.class),
-            openingResult,
-            origin
-        ).start();
-        MatcherAssert.assertThat(
-            used.get(),
-            CoreMatchers.equalTo(true)
-        );
     }
 
 }
