@@ -7,6 +7,7 @@
 
 package com.levelrin.jwsserver.opening;
 
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -39,7 +40,7 @@ public final class CheckUpgrade implements Opening {
     @Override
     public OpeningResult handshake() {
         final OpeningResult result;
-        if ("WEBSOCKET".equals(this.headers.get("UPGRADE"))) {
+        if ("WEBSOCKET".equals(this.headers.get("UPGRADE").toUpperCase(Locale.ROOT))) {
             result = this.origin.handshake();
         } else {
             result = new OpeningResult() {

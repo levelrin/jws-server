@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 /**
  * It's responsible for parsing the HTTP headers from the request lines.
- * The keys and values of the header will be all capitalized for the case-insensitive validations later.
+ * The keys of the headers will be all capitalized because they are case-insensitive.
  */
 public final class OnHeaders implements WsServer {
 
@@ -27,8 +27,7 @@ public final class OnHeaders implements WsServer {
     /**
      * You can do something with the HTTP headers using this.
      * The map represents the HTTP headers.
-     * The keys and values of the header will be all capitalized
-     * for the case-insensitive validations later.
+     * The keys of the headers will be all capitalized because they are case-insensitive.
      */
     private final Function<Map<String, String>, WsServer> withHeaders;
 
@@ -51,8 +50,8 @@ public final class OnHeaders implements WsServer {
             }
             final String[] pair = line.split(":", 2);
             headers.put(
-                pair[0].toUpperCase(Locale.ROOT).trim(),
-                pair[1].toUpperCase(Locale.ROOT).trim()
+                pair[0].trim().toUpperCase(Locale.ROOT),
+                pair[1].trim()
             );
         }
         this.withHeaders.apply(headers).start();

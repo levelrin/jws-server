@@ -50,9 +50,9 @@ public final class OnOpeningResult implements WsServer {
     public void start() {
         final OpeningResult result = this.opening.handshake();
         if (result.success()) {
-            this.onSuccess.apply(result);
+            this.onSuccess.apply(result).start();
         } else {
-            this.onFailure.apply(result);
+            this.onFailure.apply(result).start();
         }
     }
 

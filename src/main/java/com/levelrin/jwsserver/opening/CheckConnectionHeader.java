@@ -7,6 +7,7 @@
 
 package com.levelrin.jwsserver.opening;
 
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -39,7 +40,7 @@ public final class CheckConnectionHeader implements Opening {
     @Override
     public OpeningResult handshake() {
         final OpeningResult result;
-        if (this.headers.get("CONNECTION").contains("UPGRADE")) {
+        if (this.headers.get("CONNECTION").toUpperCase(Locale.ROOT).contains("UPGRADE")) {
             result = this.origin.handshake();
         } else {
             result = new OpeningResult() {

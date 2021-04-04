@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 final class OnRequestLinesTest {
 
     @Test
+    @SuppressWarnings("RegexpSingleline")
     public void shouldReadRequestLines() throws IOException {
         final Socket socket = Mockito.mock(Socket.class);
         final InputStream inputStream = new FakeInputStream(
@@ -39,6 +40,7 @@ final class OnRequestLinesTest {
             Sec-WebSocket-Key: xqBt3ImNzJbYqRINxEFlkg==
             Origin: http://localhost
             Sec-WebSocket-Version: 13
+            
             """
         );
         Mockito.when(socket.getInputStream()).thenReturn(inputStream);

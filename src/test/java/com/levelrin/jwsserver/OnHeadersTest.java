@@ -43,11 +43,11 @@ final class OnHeadersTest {
         MatcherAssert.assertThat(
             actual,
             CoreMatchers.allOf(
-                Matchers.hasEntry("HOST", "LOCALHOST"),
-                Matchers.hasEntry("UPGRADE", "WEBSOCKET"),
-                Matchers.hasEntry("CONNECTION", "UPGRADE"),
-                Matchers.hasEntry("SEC-WEBSOCKET-KEY", "XQBT3IMNZJBYQRINXEFLKG=="),
-                Matchers.hasEntry("ORIGIN", "HTTP://LOCALHOST"),
+                Matchers.hasEntry("HOST", "localhost"),
+                Matchers.hasEntry("UPGRADE", "websocket"),
+                Matchers.hasEntry("CONNECTION", "Upgrade"),
+                Matchers.hasEntry("SEC-WEBSOCKET-KEY", "xqBt3ImNzJbYqRINxEFlkg=="),
+                Matchers.hasEntry("ORIGIN", "http://localhost"),
                 Matchers.hasEntry("SEC-WEBSOCKET-VERSION", "13")
             )
         );

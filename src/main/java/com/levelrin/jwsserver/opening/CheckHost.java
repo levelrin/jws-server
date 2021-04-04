@@ -47,7 +47,8 @@ public final class CheckHost implements Opening {
     @Override
     public OpeningResult handshake() {
         final OpeningResult result;
-        if (this.headers.get("HOST").contains(this.host.toUpperCase(Locale.ROOT))) {
+        final String headerHost = this.headers.get("HOST").toUpperCase(Locale.ROOT);
+        if (headerHost.contains(this.host.toUpperCase(Locale.ROOT))) {
             result = this.origin.handshake();
         } else {
             result = new OpeningResult() {

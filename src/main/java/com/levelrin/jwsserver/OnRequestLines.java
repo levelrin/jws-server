@@ -62,7 +62,7 @@ public final class OnRequestLines implements WsServer {
             );
             final List<String> lines = new ArrayList<>();
             String line = reader.readLine();
-            while (line != null) {
+            while (line != null && !line.isEmpty()) {
                 lines.add(line);
                 line = reader.readLine();
             }
