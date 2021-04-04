@@ -6,6 +6,6 @@
  */
 
 /**
- * Root package of this library.
+ * Tests.
  */
-package com.levelrin.jwsserver;
+package com.levelrin.jwsserver.opening;
