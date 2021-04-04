@@ -32,6 +32,7 @@ final class OnHeadersTest {
         lines.add("Sec-WebSocket-Key: xqBt3ImNzJbYqRINxEFlkg==");
         lines.add("Origin: http://localhost");
         lines.add("Sec-WebSocket-Version: 13");
+        lines.add("");
         final Map<String, String> actual = new HashMap<>();
         new OnHeaders(
             lines,
