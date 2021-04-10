@@ -13,7 +13,7 @@ import java.io.PrintWriter;
 /**
  * It's responsible for responding to the client to switch the protocol from HTTP to WebSocket.
  * It assumes that the opening handshake was successful.
- * todo: implement websocket communication logic after the successful opening handshake.
+ * Since it's a decorator, we can decorate an object to take further actions after responding.
  */
 public final class InformOpeningSuccess implements WsServer {
 
@@ -28,13 +28,20 @@ public final class InformOpeningSuccess implements WsServer {
     private final OpeningResult result;
 
     /**
+     * We will use this after replying the message to the client.
+     */
+    private final WsServer origin;
+
+    /**
      * Constructor.
      * @param writer See {@link InformOpeningSuccess#writer}.
      * @param result See {@link InformOpeningSuccess#result}.
+     * @param origin See {@link InformOpeningSuccess#origin}.
      */
-    public InformOpeningSuccess(final PrintWriter writer, final OpeningResult result) {
+    public InformOpeningSuccess(final PrintWriter writer, final OpeningResult result, final WsServer origin) {
         this.writer = writer;
         this.result = result;
+        this.origin = origin;
     }
 
     @Override
@@ -43,6 +50,7 @@ public final class InformOpeningSuccess implements WsServer {
             this.result.message()
         );
         this.writer.flush();
+        this.origin.start();
     }
 
 }

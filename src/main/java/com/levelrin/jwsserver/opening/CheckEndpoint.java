@@ -12,6 +12,7 @@ import java.util.List;
 /**
  * A decorator to check the request endpoint from the client.
  * The opening result will fail if the request endpoint is unknown.
+ * We assume endpoints are case-sensitive.
  */
 public final class CheckEndpoint implements Opening {
 

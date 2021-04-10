@@ -33,7 +33,8 @@ final class InformOpeningSuccessTest {
         Mockito.doReturn("Yoi Yoi").when(result).message();
         new InformOpeningSuccess(
             writer,
-            result
+            result,
+            Mockito.mock(WsServer.class)
         ).start();
         MatcherAssert.assertThat(
             reply.get(),
