@@ -8,6 +8,7 @@
 package com.levelrin.jwsserver;
 
 import com.levelrin.jwsserver.reaction.Reaction;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 final class OnReactionTest {
 
     @Test
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED")
     public void shouldFindReactionThatBelongsToEndpoint() {
         final Reaction yoiEndpoint = Mockito.mock(Reaction.class);
         Mockito.doReturn("/yoi").when(yoiEndpoint).endpoint();
