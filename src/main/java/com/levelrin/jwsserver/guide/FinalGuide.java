@@ -55,6 +55,7 @@ import com.levelrin.jwsserver.opening.FormatSuccess;
 import com.levelrin.jwsserver.opening.OnSecWsAccept;
 import com.levelrin.jwsserver.reaction.Reaction;
 import com.levelrin.jwsserver.session.Session;
+import com.levelrin.jwsserver.session.SyncSession;
 import com.levelrin.jwsserver.session.UuidSession;
 import java.net.ServerSocket;
 import java.util.ArrayList;
@@ -190,7 +191,9 @@ public final class FinalGuide {
                                                             }
                                                         )
                                                     );
-                                                    final Session session = new UuidSession(socket);
+                                                    final Session session = new SyncSession(
+                                                        new UuidSession(socket)
+                                                    );
                                                     return new StartCommunication(
                                                         selectedReaction,
                                                         session,
