@@ -60,6 +60,7 @@ final class FinalGuideTest {
                 "Message from the client: %s%n",
                 message
             );
+            session.sendMessage("Hello back from the server!");
         }
 
         @Override

@@ -55,6 +55,8 @@ import com.levelrin.jwsserver.opening.FormatSuccess;
 import com.levelrin.jwsserver.opening.OnSecWsAccept;
 import com.levelrin.jwsserver.reaction.Reaction;
 import com.levelrin.jwsserver.session.Session;
+import com.levelrin.jwsserver.session.SyncSession;
+import com.levelrin.jwsserver.session.UuidSession;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,9 +97,7 @@ public final class FinalGuide {
 
     /**
      * Compose all the objects and start the server.
-     * todo: Remove the suppress warnings after implementing the session.
      */
-    @SuppressWarnings({"AnonInnerLength", "PMD.AvoidDuplicateLiterals"})
     public void go() {
         final ExecutorService serverThread = (ExecutorService) this.dependencies.get("serverThread");
         final ServerSocket serverSocket = (ServerSocket) this.dependencies.get("serverSocket");
@@ -115,21 +115,30 @@ public final class FinalGuide {
                 new OnConnection(
                     serverSocket,
                     ioException -> {
-                        throw new IllegalStateException("We caught an exception while waiting for the socket connection.");
+                        throw new IllegalStateException(
+                            "We caught an exception while waiting for the socket connection.",
+                            ioException
+                        );
                     },
                     socket -> new WithThread(
                         socketThread,
                         new OnRequestLines(
                             socket,
                             ioException -> {
-                                throw new IllegalStateException("We caught an exception while reading the lines from the socket.");
+                                throw new IllegalStateException(
+                                    "We caught an exception while reading the lines from the socket.",
+                                    ioException
+                                );
                             },
                             lines -> new OnHeaders(
                                 lines,
                                 headers -> new OnWriter(
                                     socket,
                                     ioException -> {
-                                        throw new IllegalStateException("Failed to write to the socket.");
+                                        throw new IllegalStateException(
+                                            "Failed to write to the socket.",
+                                            ioException
+                                        );
                                     },
                                     writer -> new OnOpeningResult(
                                         new FormatFailure(
@@ -175,34 +184,16 @@ public final class FinalGuide {
                                                         new SocketBinary(
                                                             socket,
                                                             ioException -> {
-                                                                throw new IllegalStateException("Failed to read the data from the socket.");
+                                                                throw new IllegalStateException(
+                                                                    "Failed to read the data from the socket.",
+                                                                    ioException
+                                                                );
                                                             }
                                                         )
                                                     );
-                                                    // todo: We will create a proper session in the future.
-                                                    final Session session = new Session() {
-
-                                                        @Override
-                                                        public String id() {
-                                                            throw new UnsupportedOperationException("Not implemented yet.");
-                                                        }
-
-                                                        @Override
-                                                        public void sendMessage(final String message) {
-                                                            throw new UnsupportedOperationException("Not implemented yet.");
-                                                        }
-
-                                                        @Override
-                                                        public void sendMessage(final byte[] message) {
-                                                            throw new UnsupportedOperationException("Not implemented yet.");
-                                                        }
-
-                                                        @Override
-                                                        public void close() {
-                                                            throw new UnsupportedOperationException("Not implemented yet.");
-                                                        }
-
-                                                    };
+                                                    final Session session = new SyncSession(
+                                                        new UuidSession(socket)
+                                                    );
                                                     return new StartCommunication(
                                                         selectedReaction,
                                                         session,
