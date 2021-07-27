@@ -61,6 +61,7 @@ final class FinalGuideTest {
                 message
             );
             session.sendMessage("Hello back from the server!");
+            session.close();
         }
 
         @Override
