@@ -225,6 +225,36 @@ final class UuidSessionTest {
         );
     }
 
+    @Test
+    public void shouldSendCloseFrame() throws IOException {
+        final Socket socket = Mockito.mock(Socket.class);
+        final FakeOutputStream stream = new FakeOutputStream();
+        Mockito.doReturn(stream).when(socket).getOutputStream();
+        new UuidSession(socket).close();
+        MatcherAssert.assertThat(
+            stream.sentData(),
+            CoreMatchers.equalTo(
+                new byte[] {
+                    // -120 is equivalent to 10001000,
+                    // which means it's a FIN close frame.
+                    -120,
+                    // 0 is equivalent to 00000000,
+                    // which means the payload data is not masked and length is 0.
+                    0,
+                }
+            )
+        );
+    }
+
+    @Test
+    public void shouldCloseSocket() throws IOException {
+        final Socket socket = Mockito.mock(Socket.class);
+        final OutputStream stream = Mockito.mock(OutputStream.class);
+        Mockito.doReturn(stream).when(socket).getOutputStream();
+        new UuidSession(socket).close();
+        Mockito.verify(stream).close();
+    }
+
     /**
      * We can use this to check what data was sent by the session object.
      */
