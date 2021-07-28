@@ -229,7 +229,11 @@ public final class FinalGuide {
                                                                                                                 session,
                                                                                                                 selectedReaction
                                                                                                             ),
-                                                                                                            new BinaryControl(),
+                                                                                                            new BinaryControl(
+                                                                                                                unmasked,
+                                                                                                                session,
+                                                                                                                selectedReaction
+                                                                                                            ),
                                                                                                             new ReservedNonControl(),
                                                                                                             new CloseControl(),
                                                                                                             new PingControl(),

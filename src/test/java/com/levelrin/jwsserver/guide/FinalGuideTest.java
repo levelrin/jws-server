@@ -11,6 +11,7 @@ import com.levelrin.jwsserver.reaction.Reaction;
 import com.levelrin.jwsserver.session.Session;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -57,16 +58,20 @@ final class FinalGuideTest {
         @Override
         public void onMessage(final Session session, final String message) {
             System.out.printf(
-                "Message from the client: %s%n",
+                "A text message from the client: %s%n",
                 message
             );
             session.sendMessage("Hello back from the server!");
-            session.close();
+            session.sendMessage("Haha".getBytes(StandardCharsets.UTF_8));
         }
 
         @Override
         public void onMessage(final Session session, final byte[] message) {
-            throw new UnsupportedOperationException("Not implemented yet.");
+            System.out.printf(
+                "A binary message from the client: %s%n",
+                new String(message, StandardCharsets.UTF_8)
+            );
+            session.close();
         }
 
         @Override
