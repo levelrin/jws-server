@@ -71,12 +71,12 @@ final class FinalGuideTest {
                 "A binary message from the client: %s%n",
                 new String(message, StandardCharsets.UTF_8)
             );
-            session.close();
+            //session.close();
         }
 
         @Override
         public void onClose(final Session session) {
-            throw new UnsupportedOperationException("Not implemented yet.");
+            System.out.printf("Connection closed. session: %s%n", session.id());
         }
 
     }

@@ -8,11 +8,34 @@
 package com.levelrin.jwsserver.frame.control;
 
 import com.levelrin.jwsserver.frame.FrameSection;
+import com.levelrin.jwsserver.frame.StopFraming;
+import com.levelrin.jwsserver.reaction.Reaction;
+import com.levelrin.jwsserver.session.Session;
 
 /**
  * It checks if the opcode denotes a connection close.
  */
 public final class CloseControl implements FrameControl {
+
+    /**
+     * We are about to end this session.
+     */
+    private final Session session;
+
+    /**
+     * We can do something in response to the client's closing message using this.
+     */
+    private final Reaction reaction;
+
+    /**
+     * Constructor.
+     * @param session See {@link CloseControl#session}.
+     * @param reaction See {@link CloseControl#reaction}.
+     */
+    public CloseControl(final Session session, final Reaction reaction) {
+        this.session = session;
+        this.reaction = reaction;
+    }
 
     @Override
     public boolean match(final String opcode) {
@@ -21,7 +44,8 @@ public final class CloseControl implements FrameControl {
 
     @Override
     public FrameSection section() {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        this.reaction.onClose(this.session);
+        return new StopFraming();
     }
 
 }
