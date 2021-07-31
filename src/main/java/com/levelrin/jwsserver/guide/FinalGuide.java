@@ -7,6 +7,7 @@
 
 package com.levelrin.jwsserver.guide;
 
+import com.levelrin.jwsserver.CloseSocketWhenDone;
 import com.levelrin.jwsserver.InformOpeningFailure;
 import com.levelrin.jwsserver.InformOpeningSuccess;
 import com.levelrin.jwsserver.OnConnection;
@@ -122,47 +123,50 @@ public final class FinalGuide {
                     },
                     socket -> new WithThread(
                         socketThread,
-                        new OnRequestLines(
+                        new CloseSocketWhenDone(
                             socket,
-                            ioException -> {
-                                throw new IllegalStateException(
-                                    "We caught an exception while reading the lines from the socket.",
-                                    ioException
-                                );
-                            },
-                            lines -> new OnHeaders(
-                                lines,
-                                headers -> new OnWriter(
-                                    socket,
-                                    ioException -> {
-                                        throw new IllegalStateException(
-                                            "Failed to write to the socket.",
-                                            ioException
-                                        );
-                                    },
-                                    writer -> new OnOpeningResult(
-                                        new FormatFailure(
-                                            new CheckHttpVersion(
-                                                lines,
-                                                new CheckEndpoint(
+                            new OnRequestLines(
+                                socket,
+                                ioException -> {
+                                    throw new IllegalStateException(
+                                        "We caught an exception while reading the lines from the socket.",
+                                        ioException
+                                    );
+                                },
+                                lines -> new OnHeaders(
+                                    lines,
+                                    headers -> new OnWriter(
+                                        socket,
+                                        ioException -> {
+                                            throw new IllegalStateException(
+                                                "Failed to write to the socket.",
+                                                ioException
+                                            );
+                                        },
+                                        writer -> new OnOpeningResult(
+                                            new FormatFailure(
+                                                new CheckHttpVersion(
                                                     lines,
-                                                    endpoints,
-                                                    new CheckHeadersExist(
-                                                        headers,
-                                                        new CheckHost(
+                                                    new CheckEndpoint(
+                                                        lines,
+                                                        endpoints,
+                                                        new CheckHeadersExist(
                                                             headers,
-                                                            host,
-                                                            new CheckUpgrade(
+                                                            new CheckHost(
                                                                 headers,
-                                                                new CheckConnectionHeader(
+                                                                host,
+                                                                new CheckUpgrade(
                                                                     headers,
-                                                                    new CheckWsKey(
+                                                                    new CheckConnectionHeader(
                                                                         headers,
-                                                                        new CheckWsVersion(
+                                                                        new CheckWsKey(
                                                                             headers,
-                                                                            new OnSecWsAccept(
+                                                                            new CheckWsVersion(
                                                                                 headers,
-                                                                                FormatSuccess::new
+                                                                                new OnSecWsAccept(
+                                                                                    headers,
+                                                                                    FormatSuccess::new
+                                                                                )
                                                                             )
                                                                         )
                                                                     )
@@ -171,74 +175,77 @@ public final class FinalGuide {
                                                         )
                                                     )
                                                 )
-                                            )
-                                        ),
-                                        openingSuccess -> new InformOpeningSuccess(
-                                            writer,
-                                            openingSuccess,
-                                            new OnReaction(
-                                                lines,
-                                                reactions,
-                                                selectedReaction -> {
-                                                    final BinarySource source = new CheckLength(
-                                                        new SocketBinary(
-                                                            socket,
-                                                            ioException -> {
-                                                                throw new IllegalStateException(
-                                                                    "Failed to read the data from the socket.",
-                                                                    ioException
-                                                                );
-                                                            }
-                                                        )
-                                                    );
-                                                    final Session session = new SyncSession(
-                                                        new UuidSession(socket)
-                                                    );
-                                                    return new StartCommunication(
-                                                        selectedReaction,
-                                                        session,
-                                                        new WithFraming(
-                                                            new Fin(
-                                                                source,
-                                                                fin -> new Rsv1(
+                                            ),
+                                            openingSuccess -> new InformOpeningSuccess(
+                                                writer,
+                                                openingSuccess,
+                                                new OnReaction(
+                                                    lines,
+                                                    reactions,
+                                                    selectedReaction -> {
+                                                        final BinarySource source = new CheckLength(
+                                                            new SocketBinary(
+                                                                socket,
+                                                                ioException -> {
+                                                                    throw new IllegalStateException(
+                                                                        "Failed to read the data from the socket.",
+                                                                        ioException
+                                                                    );
+                                                                }
+                                                            )
+                                                        );
+                                                        final Session session = new SyncSession(
+                                                            new UuidSession(socket)
+                                                        );
+                                                        return new StartCommunication(
+                                                            selectedReaction,
+                                                            session,
+                                                            new WithFraming(
+                                                                new Fin(
                                                                     source,
-                                                                    rsv1 -> new Rsv2(
+                                                                    fin -> new Rsv1(
                                                                         source,
-                                                                        rsv2 -> new Rsv3(
+                                                                        rsv1 -> new Rsv2(
                                                                             source,
-                                                                            rsv3 -> new Opcode(
+                                                                            rsv2 -> new Rsv3(
                                                                                 source,
-                                                                                opcode -> new Mask(
+                                                                                rsv3 -> new Opcode(
                                                                                     source,
-                                                                                    new PayloadLength(
+                                                                                    opcode -> new Mask(
                                                                                         source,
-                                                                                        length -> new MaskingKey(
+                                                                                        new PayloadLength(
                                                                                             source,
-                                                                                            key -> new PayloadData(
+                                                                                            length -> new MaskingKey(
                                                                                                 source,
-                                                                                                length,
-                                                                                                data -> new UnmaskedData(
-                                                                                                    key,
-                                                                                                    data,
-                                                                                                    unmasked -> new ControlSection(
-                                                                                                        opcode,
-                                                                                                        Arrays.asList(
-                                                                                                            new ContinuationControl(),
-                                                                                                            new TextControl(
-                                                                                                                unmasked,
-                                                                                                                session,
-                                                                                                                selectedReaction
-                                                                                                            ),
-                                                                                                            new BinaryControl(
-                                                                                                                unmasked,
-                                                                                                                session,
-                                                                                                                selectedReaction
-                                                                                                            ),
-                                                                                                            new ReservedNonControl(),
-                                                                                                            new CloseControl(),
-                                                                                                            new PingControl(),
-                                                                                                            new PongControl(),
-                                                                                                            new ReservedControl()
+                                                                                                key -> new PayloadData(
+                                                                                                    source,
+                                                                                                    length,
+                                                                                                    data -> new UnmaskedData(
+                                                                                                        key,
+                                                                                                        data,
+                                                                                                        unmasked -> new ControlSection(
+                                                                                                            opcode,
+                                                                                                            Arrays.asList(
+                                                                                                                new ContinuationControl(),
+                                                                                                                new TextControl(
+                                                                                                                    unmasked,
+                                                                                                                    session,
+                                                                                                                    selectedReaction
+                                                                                                                ),
+                                                                                                                new BinaryControl(
+                                                                                                                    unmasked,
+                                                                                                                    session,
+                                                                                                                    selectedReaction
+                                                                                                                ),
+                                                                                                                new ReservedNonControl(),
+                                                                                                                new CloseControl(
+                                                                                                                    session,
+                                                                                                                    selectedReaction
+                                                                                                                ),
+                                                                                                                new PingControl(),
+                                                                                                                new PongControl(),
+                                                                                                                new ReservedControl()
+                                                                                                            )
                                                                                                         )
                                                                                                     )
                                                                                                 )
@@ -251,12 +258,12 @@ public final class FinalGuide {
                                                                     )
                                                                 )
                                                             )
-                                                        )
-                                                    );
-                                                }
-                                            )
-                                        ),
-                                        openingFailure -> new InformOpeningFailure(writer, openingFailure)
+                                                        );
+                                                    }
+                                                )
+                                            ),
+                                            openingFailure -> new InformOpeningFailure(writer, openingFailure)
+                                        )
                                     )
                                 )
                             )
