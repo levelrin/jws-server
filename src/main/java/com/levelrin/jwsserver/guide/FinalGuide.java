@@ -242,7 +242,7 @@ public final class FinalGuide {
                                                                                                                     session,
                                                                                                                     selectedReaction
                                                                                                                 ),
-                                                                                                                new PingControl(),
+                                                                                                                new PingControl(socket),
                                                                                                                 new PongControl(),
                                                                                                                 new ReservedControl()
                                                                                                             )
