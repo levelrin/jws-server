@@ -24,10 +24,13 @@ import com.levelrin.jwsserver.WsServer;
 import com.levelrin.jwsserver.binary.BinarySource;
 import com.levelrin.jwsserver.binary.CheckLength;
 import com.levelrin.jwsserver.binary.SocketBinary;
+import com.levelrin.jwsserver.frame.Defragmentation;
 import com.levelrin.jwsserver.frame.ControlSection;
 import com.levelrin.jwsserver.frame.Fin;
 import com.levelrin.jwsserver.frame.Mask;
 import com.levelrin.jwsserver.frame.MaskingKey;
+import com.levelrin.jwsserver.frame.OnSaveOpcode;
+import com.levelrin.jwsserver.frame.OnSavePayload;
 import com.levelrin.jwsserver.frame.Opcode;
 import com.levelrin.jwsserver.frame.PayloadData;
 import com.levelrin.jwsserver.frame.PayloadLength;
@@ -58,12 +61,15 @@ import com.levelrin.jwsserver.reaction.Reaction;
 import com.levelrin.jwsserver.session.Session;
 import com.levelrin.jwsserver.session.SyncSession;
 import com.levelrin.jwsserver.session.UuidSession;
+
+import java.io.ByteArrayOutputStream;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * This is the place where we compose all the objects for you after setting dependencies.
@@ -197,6 +203,8 @@ public final class FinalGuide {
                                                         final Session session = new SyncSession(
                                                             new UuidSession(socket)
                                                         );
+                                                        final AtomicReference<String> opcodeCache = new AtomicReference<>();
+                                                        final ByteArrayOutputStream dataCache = new ByteArrayOutputStream();
                                                         return new StartCommunication(
                                                             selectedReaction,
                                                             session,
@@ -223,28 +231,40 @@ public final class FinalGuide {
                                                                                                     data -> new UnmaskedData(
                                                                                                         key,
                                                                                                         data,
-                                                                                                        unmasked -> new ControlSection(
+                                                                                                        unmasked -> new OnSaveOpcode(
                                                                                                             opcode,
-                                                                                                            Arrays.asList(
-                                                                                                                new ContinuationControl(),
-                                                                                                                new TextControl(
-                                                                                                                    unmasked,
-                                                                                                                    session,
-                                                                                                                    selectedReaction
-                                                                                                                ),
-                                                                                                                new BinaryControl(
-                                                                                                                    unmasked,
-                                                                                                                    session,
-                                                                                                                    selectedReaction
-                                                                                                                ),
-                                                                                                                new ReservedNonControl(),
-                                                                                                                new CloseControl(
-                                                                                                                    session,
-                                                                                                                    selectedReaction
-                                                                                                                ),
-                                                                                                                new PingControl(socket),
-                                                                                                                new PongControl(),
-                                                                                                                new ReservedControl()
+                                                                                                            opcodeCache,
+                                                                                                            cachedOpcode -> new OnSavePayload(
+                                                                                                                unmasked,
+                                                                                                                dataCache,
+                                                                                                                cachedData -> new Defragmentation(
+                                                                                                                    fin,
+                                                                                                                    dataCache,
+                                                                                                                    new ControlSection(
+                                                                                                                        cachedOpcode,
+                                                                                                                        Arrays.asList(
+                                                                                                                            new ContinuationControl(),
+                                                                                                                            new TextControl(
+                                                                                                                                cachedData,
+                                                                                                                                session,
+                                                                                                                                selectedReaction
+                                                                                                                            ),
+                                                                                                                            new BinaryControl(
+                                                                                                                                cachedData,
+                                                                                                                                session,
+                                                                                                                                selectedReaction
+                                                                                                                            ),
+                                                                                                                            new ReservedNonControl(),
+                                                                                                                            new CloseControl(
+                                                                                                                                session,
+                                                                                                                                selectedReaction
+                                                                                                                            ),
+                                                                                                                            new PingControl(socket),
+                                                                                                                            new PongControl(),
+                                                                                                                            new ReservedControl()
+                                                                                                                        )
+                                                                                                                    )
+                                                                                                                )
                                                                                                             )
                                                                                                         )
                                                                                                     )
