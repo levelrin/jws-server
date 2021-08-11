@@ -40,7 +40,6 @@ import com.levelrin.jwsserver.frame.Rsv3;
 import com.levelrin.jwsserver.frame.UnmaskedData;
 import com.levelrin.jwsserver.frame.control.BinaryControl;
 import com.levelrin.jwsserver.frame.control.CloseControl;
-import com.levelrin.jwsserver.frame.control.ContinuationControl;
 import com.levelrin.jwsserver.frame.control.PingControl;
 import com.levelrin.jwsserver.frame.control.PongControl;
 import com.levelrin.jwsserver.frame.control.ReservedControl;
@@ -61,7 +60,6 @@ import com.levelrin.jwsserver.reaction.Reaction;
 import com.levelrin.jwsserver.session.Session;
 import com.levelrin.jwsserver.session.SyncSession;
 import com.levelrin.jwsserver.session.UuidSession;
-
 import java.io.ByteArrayOutputStream;
 import java.net.ServerSocket;
 import java.util.ArrayList;
@@ -243,7 +241,6 @@ public final class FinalGuide {
                                                                                                                     new ControlSection(
                                                                                                                         cachedOpcode,
                                                                                                                         Arrays.asList(
-                                                                                                                            new ContinuationControl(),
                                                                                                                             new TextControl(
                                                                                                                                 cachedData,
                                                                                                                                 session,
