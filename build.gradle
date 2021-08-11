@@ -145,6 +145,10 @@ tasks.withType(Checkstyle) {
         xml.required = true
         html.required = true
     }
+    // Checkstyle takes a long time to analyze this file
+    // because it has many lambdas.
+    // We exclude this file to speed up the CI.
+    exclude 'com/levelrin/jwsserver/guide/FinalGuide.java'
 }
 
 task sourcesJar(type: Jar) {

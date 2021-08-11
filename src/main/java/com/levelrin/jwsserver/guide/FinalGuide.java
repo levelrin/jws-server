@@ -75,10 +75,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @SuppressWarnings(
     {
     "unchecked",
-    "ClassDataAbstractionCoupling",
-    "ClassFanOutComplexity",
-    "MethodLength",
-    "LineLength",
     "PMD.ExcessiveImports",
     "PMD.ExcessiveMethodLength",
     "PMD.ShortMethodName",
