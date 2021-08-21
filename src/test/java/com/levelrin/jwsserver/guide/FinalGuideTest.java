@@ -11,7 +11,20 @@ import com.levelrin.jwsserver.reaction.Reaction;
 import com.levelrin.jwsserver.session.Session;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocketFactory;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -21,13 +34,33 @@ import java.util.concurrent.CountDownLatch;
 final class FinalGuideTest {
 
     @Test
-    @Disabled
+    //@Disabled
     public void manualTest() throws InterruptedException {
         System.out.println("START");
         final int port = 4567;
+        ServerSocket serverSocket = null;
+        try {
+            final SSLContext sslContext = SSLContext.getInstance("TLS");
+            final KeyManagerFactory kmFactory = KeyManagerFactory.getInstance("SunX509");
+            final KeyStore keyStore = KeyStore.getInstance("JKS");
+            final char[] passphrase = "yoiyoi".toCharArray();
+            keyStore.load(
+                new FileInputStream("C:\\Users\\Rin\\Development\\Java\\JavaTest\\tls\\yoi.jks"),
+                passphrase
+            );
+            kmFactory.init(keyStore, passphrase);
+            sslContext.init(kmFactory.getKeyManagers(), null, null);
+            final SSLServerSocketFactory sssFactory = sslContext.getServerSocketFactory();
+            serverSocket = sssFactory.createServerSocket(port);
+        } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException | UnrecoverableKeyException | KeyManagementException e) {
+            e.printStackTrace();
+        }
         new JwsGuide()
             .defaultServerThread()
-            .port(port)
+            .serverSocket(
+                serverSocket
+            )
+            //.port(port)
             .defaultSocketThread()
             .skipHostValidation()
             .reaction(new AdHocReaction())
