@@ -14,6 +14,9 @@ import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Tests.
@@ -24,6 +27,7 @@ final class CloseControlTest {
     public void shouldMatchOpcodeForCloseFrame() {
         MatcherAssert.assertThat(
             new CloseControl(
+                new byte[] {0, 0},
                 Mockito.mock(Session.class),
                 Mockito.mock(Reaction.class)
             ).match("1000"),
@@ -35,6 +39,7 @@ final class CloseControlTest {
     public void nextSectionShouldBeStopFraming() {
         MatcherAssert.assertThat(
             new CloseControl(
+                new byte[] {0, 0},
                 Mockito.mock(Session.class),
                 Mockito.mock(Reaction.class)
             ).section(),
@@ -47,10 +52,29 @@ final class CloseControlTest {
         final Reaction reaction = Mockito.mock(Reaction.class);
         final Session session = Mockito.mock(Session.class);
         new CloseControl(
+            new byte[] {0, 0},
             session,
             reaction
         ).section();
-        Mockito.verify(reaction).onClose(session);
+        Mockito.verify(reaction).onClose(session, 0, "");
+    }
+
+    @Test
+    @SuppressWarnings("MagicNumber")
+    public void shouldReadCodeAndReason() throws IOException {
+        final Reaction reaction = Mockito.mock(Reaction.class);
+        final Session session = Mockito.mock(Session.class);
+        final ByteArrayOutputStream payload = new ByteArrayOutputStream();
+        // The first two bytes indicates the status code of 1000.
+        payload.write(3);
+        payload.write(-24);
+        payload.write("Yoi Yoi".getBytes(StandardCharsets.UTF_8));
+        new CloseControl(
+            payload.toByteArray(),
+            session,
+            reaction
+        ).section();
+        Mockito.verify(reaction).onClose(session, 1000, "Yoi Yoi");
     }
 
 }

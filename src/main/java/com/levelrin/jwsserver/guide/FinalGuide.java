@@ -249,6 +249,7 @@ public final class FinalGuide {
                                                                                                                             ),
                                                                                                                             new ReservedNonControl(),
                                                                                                                             new CloseControl(
+                                                                                                                                cachedData,
                                                                                                                                 session,
                                                                                                                                 selectedReaction
                                                                                                                             ),

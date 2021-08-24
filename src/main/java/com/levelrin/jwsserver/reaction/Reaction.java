@@ -56,7 +56,9 @@ public interface Reaction {
     /**
      * Do something when the client sends a closing message.
      * @param session A connection object.
+     * @param code Status code.
+     * @param reason Reason of closing.
      */
-    void onClose(Session session);
+    void onClose(Session session, int code, String reason);
 
 }
