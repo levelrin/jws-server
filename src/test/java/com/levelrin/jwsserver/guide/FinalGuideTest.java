@@ -75,8 +75,13 @@ final class FinalGuideTest {
         }
 
         @Override
-        public void onClose(final Session session) {
-            System.out.printf("Connection closed. session: %s%n", session.id());
+        public void onClose(final Session session, final int code, final String reason) {
+            System.out.printf(
+                "Connection closed. session: %s%ncode: %s%nreason: %s%n",
+                session.id(),
+                code,
+                reason
+            );
         }
 
     }
