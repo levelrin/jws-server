@@ -7,6 +7,7 @@
 
 package com.levelrin.jwsserver.frame;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ final class UnmaskedDataTest {
 
     @Test
     @SuppressWarnings("MagicNumber")
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED")
     public void shouldUnmaskPayloadData() {
         final AtomicReference<byte[]> actual = new AtomicReference<>();
         new UnmaskedData(

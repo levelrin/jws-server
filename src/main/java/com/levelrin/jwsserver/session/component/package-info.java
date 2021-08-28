@@ -1,0 +1,12 @@
+/*
+ * Copyright (c) 2020 Rin (https://www.levelrin.com)
+ *
+ * This file has been created under the terms of the MIT License.
+ * See the details at https://github.com/levelrin/jws-server/blob/main/LICENSE
+ */
+
+/**
+ * There are common code to implement session objects.
+ * This package contains those common codes.
+ */
+package com.levelrin.jwsserver.session.component;
