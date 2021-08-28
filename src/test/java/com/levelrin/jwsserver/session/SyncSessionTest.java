@@ -11,10 +11,12 @@ import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * Tests.
@@ -57,6 +59,14 @@ final class SyncSessionTest {
     }
 
     @Test
+    public void originShouldUseOption() {
+        final Session origin = Mockito.mock(Session.class);
+        final Function<Socket, String> option = socket -> "Done";
+        new SyncSession(origin).advanced(option);
+        Mockito.verify(origin).advanced(option);
+    }
+
+    @Test
     public void sessionShouldBeThreadSafe() throws InterruptedException {
         final Count count = new Count();
         final Session session = new SyncSession(
@@ -69,13 +79,14 @@ final class SyncSessionTest {
             service.execute(() -> session.sendMessage("One"));
             service.execute(() -> session.sendMessage("Two".getBytes(StandardCharsets.UTF_8)));
             service.execute(session::close);
+            service.execute(() -> session.advanced(socket -> "Yoi"));
         }
         service.shutdown();
         final int timeout = 5;
         if (!service.awaitTermination(timeout, TimeUnit.SECONDS)) {
             throw new IllegalStateException("Threads could not be finished within the timeout.");
         }
-        final int expectedCount = 40_000;
+        final int expectedCount = 50_000;
         MatcherAssert.assertThat(
             count.value(),
             CoreMatchers.equalTo(expectedCount)
@@ -150,6 +161,12 @@ final class SyncSessionTest {
         @Override
         public void close() {
             this.count.increment();
+        }
+
+        @Override
+        public <T> T advanced(final Function<Socket, T> withSocket) {
+            this.count.increment();
+            return withSocket.apply(Mockito.mock(Socket.class));
         }
 
     }

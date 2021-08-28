@@ -7,9 +7,10 @@
 
 package com.levelrin.jwsserver.session;
 
+import com.levelrin.jwsserver.io.CheckableOutputStream;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import java.io.ByteArrayOutputStream;
@@ -19,6 +20,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Tests.
@@ -57,7 +59,7 @@ final class UuidSessionTest {
     @Test
     public void shouldSendTextMessageWithLengthLessThan126() throws IOException {
         final Socket socket = Mockito.mock(Socket.class);
-        final FakeOutputStream stream = new FakeOutputStream();
+        final CheckableOutputStream stream = new CheckableOutputStream();
         Mockito.doReturn(stream).when(socket).getOutputStream();
         new UuidSession(socket).sendMessage("Yoi");
         final ByteArrayOutputStream frame = new ByteArrayOutputStream();
@@ -78,7 +80,7 @@ final class UuidSessionTest {
     @Test
     public void shouldSendTextMessageWithLengthGreaterThan126AndLessThanOrEquals65535() throws IOException {
         final Socket socket = Mockito.mock(Socket.class);
-        final FakeOutputStream stream = new FakeOutputStream();
+        final CheckableOutputStream stream = new CheckableOutputStream();
         Mockito.doReturn(stream).when(socket).getOutputStream();
         final String message = "a".repeat(65_535);
         new UuidSession(socket).sendMessage(message);
@@ -105,7 +107,7 @@ final class UuidSessionTest {
     @Test
     public void shouldSendTextMessageWithLengthGreaterThan65535() throws IOException {
         final Socket socket = Mockito.mock(Socket.class);
-        final FakeOutputStream stream = new FakeOutputStream();
+        final CheckableOutputStream stream = new CheckableOutputStream();
         Mockito.doReturn(stream).when(socket).getOutputStream();
         final String message = "a".repeat(65_536);
         new UuidSession(socket).sendMessage(message);
@@ -138,7 +140,7 @@ final class UuidSessionTest {
     @Test
     public void shouldSendBinaryMessageWithLengthLessThan126() throws IOException {
         final Socket socket = Mockito.mock(Socket.class);
-        final FakeOutputStream stream = new FakeOutputStream();
+        final CheckableOutputStream stream = new CheckableOutputStream();
         Mockito.doReturn(stream).when(socket).getOutputStream();
         final byte[] message = {
             0, 1, 2,
@@ -162,7 +164,7 @@ final class UuidSessionTest {
     @Test
     public void shouldSendBinaryMessageWithLengthGreaterThan126AndLessThanOrEquals65535() throws IOException {
         final Socket socket = Mockito.mock(Socket.class);
-        final FakeOutputStream stream = new FakeOutputStream();
+        final CheckableOutputStream stream = new CheckableOutputStream();
         Mockito.doReturn(stream).when(socket).getOutputStream();
         final ByteArrayOutputStream messageBuilder = new ByteArrayOutputStream();
         for (int iteration = 0; iteration < 65_535; iteration = iteration + 1) {
@@ -193,7 +195,7 @@ final class UuidSessionTest {
     @Test
     public void shouldSendBinaryMessageWithLengthGreaterThan65535() throws IOException {
         final Socket socket = Mockito.mock(Socket.class);
-        final FakeOutputStream stream = new FakeOutputStream();
+        final CheckableOutputStream stream = new CheckableOutputStream();
         Mockito.doReturn(stream).when(socket).getOutputStream();
         final ByteArrayOutputStream messageBuilder = new ByteArrayOutputStream();
         for (int iteration = 0; iteration < 65_536; iteration = iteration + 1) {
@@ -228,7 +230,7 @@ final class UuidSessionTest {
     @Test
     public void shouldSendCloseFrame() throws IOException {
         final Socket socket = Mockito.mock(Socket.class);
-        final FakeOutputStream stream = new FakeOutputStream();
+        final CheckableOutputStream stream = new CheckableOutputStream();
         Mockito.doReturn(stream).when(socket).getOutputStream();
         new UuidSession(socket).close();
         MatcherAssert.assertThat(
@@ -255,34 +257,20 @@ final class UuidSessionTest {
         Mockito.verify(stream).close();
     }
 
-    /**
-     * We can use this to check what data was sent by the session object.
-     */
-    private static final class FakeOutputStream extends OutputStream {
-
-        /**
-         * We will store the data sent by the session into this.
-         */
-        private final List<byte[]> dataCache = new ArrayList<>(1);
-
-        @Override
-        public void write(final int data) {
-            throw new UnsupportedOperationException("Unexpected call.");
-        }
-
-        @Override
-        public void write(final byte @NotNull [] data) {
-            this.dataCache.add(data);
-        }
-
-        /**
-         * We can use this to check the data sent by the session object.
-         * @return Data sent by the session object.
-         */
-        public byte[] sentData() {
-            return this.dataCache.get(0);
-        }
-
+    @Test
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED")
+    public void optionShouldReceiveSocket() {
+        final Socket socket = Mockito.mock(Socket.class);
+        final List<Socket> cache = new ArrayList<>(1);
+        final Function<Socket, String> option = param -> {
+            cache.add(param);
+            return "Done";
+        };
+        new UuidSession(socket).advanced(option);
+        MatcherAssert.assertThat(
+            cache.get(0),
+            CoreMatchers.equalTo(socket)
+        );
     }
 
 }

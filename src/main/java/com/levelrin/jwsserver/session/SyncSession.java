@@ -7,6 +7,9 @@
 
 package com.levelrin.jwsserver.session;
 
+import java.net.Socket;
+import java.util.function.Function;
+
 /**
  * A decorator to make a {@link Session} object thread-safe.
  */
@@ -56,6 +59,13 @@ public final class SyncSession implements Session {
     public void close() {
         synchronized (this.lock) {
             this.origin.close();
+        }
+    }
+
+    @Override
+    public <T> T advanced(final Function<Socket, T> withSocket) {
+        synchronized (this.lock) {
+            return this.origin.advanced(withSocket);
         }
     }
 
