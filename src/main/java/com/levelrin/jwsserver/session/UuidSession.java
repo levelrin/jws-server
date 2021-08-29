@@ -8,9 +8,6 @@
 package com.levelrin.jwsserver.session;
 
 import com.levelrin.jwsserver.session.component.OutgoingBody;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -88,25 +85,24 @@ public final class UuidSession implements Session {
         ).send();
     }
 
+    /**
+     * Close the connection with the status code of 1000 and the empty reason.
+     */
     @Override
     @SuppressWarnings("MagicNumber")
     public void close() {
-        try (OutputStream output = this.socket.getOutputStream()) {
-            final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        new OutgoingBody(
+            this.socket,
             // -120 is equivalent to 10001000,
             // which means it's a FIN close frame.
-            stream.write(-120);
-            // 0 is equivalent to 00000000,
-            // which means the payload data is not masked and length is 0.
-            stream.write(0);
-            output.write(stream.toByteArray());
-            output.flush();
-        } catch (final IOException ioException) {
-            throw new IllegalStateException(
-                "Failed to close the communication.",
-                ioException
-            );
-        }
+            -120,
+            new byte[] {
+                // 1000 (status code) is equivalent to 0000001111101000.
+                // 00000011 (first byte) is equivalent to 3.
+                // 11101000 (second byte) is equivalent to -24
+                3, -24,
+            }
+        ).send();
     }
 
     @Override

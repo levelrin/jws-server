@@ -9,7 +9,6 @@ package com.levelrin.jwsserver.guide;
 
 import com.levelrin.jwsserver.reaction.Reaction;
 import com.levelrin.jwsserver.session.Session;
-import com.levelrin.jwsserver.session.option.CloseOption;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
@@ -72,9 +71,7 @@ final class FinalGuideTest {
                 "A binary message from the client: %s%n",
                 new String(message, StandardCharsets.UTF_8)
             );
-            //session.close();
-            final short code = 1000;
-            session.advanced(new CloseOption()).close(code, "Normal Close!");
+            session.close();
         }
 
         @Override
