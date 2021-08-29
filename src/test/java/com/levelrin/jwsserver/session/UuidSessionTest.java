@@ -240,9 +240,15 @@ final class UuidSessionTest {
                     // -120 is equivalent to 10001000,
                     // which means it's a FIN close frame.
                     -120,
-                    // 0 is equivalent to 00000000,
-                    // which means the payload data is not masked and length is 0.
-                    0,
+                    // 2 is equivalent to 00000010,
+                    // which means the payload data is not masked and the length is 2.
+                    // We allocate 2 bytes because we need to send a status code
+                    // with the empty reason.
+                    2,
+                    // 1000 (status code) is equivalent to 0000001111101000.
+                    // 00000011 (first byte) is equivalent to 3.
+                    // 11101000 (second byte) is equivalent to -24
+                    3, -24,
                 }
             )
         );
@@ -254,7 +260,7 @@ final class UuidSessionTest {
         final OutputStream stream = Mockito.mock(OutputStream.class);
         Mockito.doReturn(stream).when(socket).getOutputStream();
         new UuidSession(socket).close();
-        Mockito.verify(stream).close();
+        Mockito.verify(socket).close();
     }
 
     @Test

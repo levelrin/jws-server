@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 
 /**
@@ -110,6 +111,22 @@ final class OutgoingBodyTest {
                 frame.toByteArray()
             )
         );
+    }
+
+    @Test
+    @SuppressWarnings("MagicNumber")
+    public void shouldCloseSocketIfCloseFrameWasSent() throws IOException {
+        final Socket socket = Mockito.mock(Socket.class);
+        final OutputStream stream = Mockito.mock(OutputStream.class);
+        Mockito.doReturn(stream).when(socket).getOutputStream();
+        new OutgoingBody(
+            socket,
+            // -120 is equivalent to 10001000,
+            // which means it's a FIN close frame.
+            -120,
+            new byte[0]
+        ).send();
+        Mockito.verify(socket).close();
     }
 
 }

@@ -85,6 +85,12 @@ public final class OutgoingBody {
             final OutputStream output = this.socket.getOutputStream();
             output.write(stream.toByteArray());
             output.flush();
+            // We will close the socket if the close frame was sent.
+            // -120 is equivalent to 10001000,
+            // which means it's a FIN close frame.
+            if (this.initialByte == -120 && !this.socket.isClosed()) {
+                this.socket.close();
+            }
         } catch (final IOException ioException) {
             throw new IllegalStateException(
                 "Failed to send a message to the client.",
