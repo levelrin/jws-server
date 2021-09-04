@@ -9,6 +9,7 @@ package com.levelrin.jwsserver.guide;
 
 import com.levelrin.jwsserver.reaction.Reaction;
 import com.levelrin.jwsserver.session.Session;
+import com.levelrin.jwsserver.session.option.PingOption;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
@@ -30,6 +31,12 @@ final class FinalGuideTest {
             .port(port)
             .defaultSocketThread()
             .skipHostValidation()
+            .onPong(
+                session -> System.out.printf(
+                    "The server received a pong. Session ID: %s%n",
+                    session.id()
+                )
+            )
             .reaction(new AdHocReaction())
             .ready()
             .go();
@@ -71,7 +78,7 @@ final class FinalGuideTest {
                 "A binary message from the client: %s%n",
                 new String(message, StandardCharsets.UTF_8)
             );
-            session.close();
+            session.advanced(new PingOption()).ping();
         }
 
         @Override
