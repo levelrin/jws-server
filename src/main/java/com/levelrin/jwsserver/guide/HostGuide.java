@@ -7,7 +7,6 @@
 
 package com.levelrin.jwsserver.guide;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -42,18 +41,18 @@ public final class HostGuide {
      * @param host We will check if the |Host| header contains this.
      * @return Next guide.
      */
-    public ReactionGuide host(final String host) {
+    public PongGuide host(final String host) {
         this.dependencies.put(KEY, host);
-        return new ReactionGuide(this.dependencies, new ArrayList<>());
+        return new PongGuide(this.dependencies);
     }
 
     /**
      * We will check if the |Host| header contains "localhost".
      * @return Next guide.
      */
-    public ReactionGuide localhost() {
+    public PongGuide localhost() {
         this.dependencies.put(KEY, "localhost");
-        return new ReactionGuide(this.dependencies, new ArrayList<>());
+        return new PongGuide(this.dependencies);
     }
 
     /**
@@ -62,9 +61,9 @@ public final class HostGuide {
      * @return Next guide.
      */
     @SuppressWarnings("MethodName")
-    public ReactionGuide skipHostValidation() {
+    public PongGuide skipHostValidation() {
         this.dependencies.put(KEY, "");
-        return new ReactionGuide(this.dependencies, new ArrayList<>());
+        return new PongGuide(this.dependencies);
     }
 
 }

@@ -68,6 +68,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 /**
  * This is the place where we compose all the objects for you after setting dependencies.
@@ -105,6 +106,7 @@ public final class FinalGuide {
         final ExecutorService socketThread = (ExecutorService) this.dependencies.get("socketThread");
         final String host = (String) this.dependencies.get("host");
         final List<Reaction> reactions = (List<Reaction>) this.dependencies.get("reactions");
+        final Consumer<Session> onPong = (Consumer<Session>) this.dependencies.get("onPong");
         final List<String> endpoints = new ArrayList<>();
         for (final Reaction reaction : reactions) {
             endpoints.add(reaction.endpoint());
@@ -254,7 +256,10 @@ public final class FinalGuide {
                                                                                                                                 selectedReaction
                                                                                                                             ),
                                                                                                                             new PingControl(socket),
-                                                                                                                            new PongControl(),
+                                                                                                                            new PongControl(
+                                                                                                                                session,
+                                                                                                                                onPong
+                                                                                                                            ),
                                                                                                                             new ReservedControl()
                                                                                                                         )
                                                                                                                     )
