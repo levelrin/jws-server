@@ -10,6 +10,7 @@ package com.levelrin.jwsserver.session.advanced;
 import com.levelrin.jwsserver.io.CheckableOutputStream;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import java.io.ByteArrayOutputStream;
@@ -51,6 +52,29 @@ final class AdvancedCloseTest {
             CoreMatchers.equalTo(
                 expected.toByteArray()
             )
+        );
+    }
+
+    @Test
+    @SuppressWarnings("MagicNumber")
+    public void shouldThrowIfForbiddenCodeIsUsed() {
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> new AdvancedClose(
+                Mockito.mock(Socket.class)
+            ).close((short) 1005, "")
+        );
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> new AdvancedClose(
+                Mockito.mock(Socket.class)
+            ).close((short) 1006, "")
+        );
+        Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> new AdvancedClose(
+                Mockito.mock(Socket.class)
+            ).close((short) 1015, "")
         );
     }
 
