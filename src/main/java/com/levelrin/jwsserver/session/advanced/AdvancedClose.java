@@ -40,6 +40,7 @@ public final class AdvancedClose {
     @SuppressWarnings("MagicNumber")
     public void close(final short code, final String reason) {
         try {
+            this.validateCode(code);
             final ByteArrayOutputStream stream = new ByteArrayOutputStream();
             stream.write(
                 ByteBuffer.allocate(2).putShort(code).array()
@@ -54,6 +55,28 @@ public final class AdvancedClose {
             ).send();
         } catch (final IOException ioException) {
             throw new IllegalStateException("Failed to send a closing frame.", ioException);
+        }
+    }
+
+    /**
+     * According to the rfc6455,
+     * some status codes must not be used such as 1005, 1006, and 1015.
+     * This method checks the code and throw an exception if the forbidden code is used.
+     * @param code The status code.
+     */
+    @SuppressWarnings("MagicNumber")
+    private void validateCode(final short code) {
+        if (
+            code == 1005
+                || code == 1006
+                || code == 1015
+        ) {
+            throw new IllegalArgumentException(
+                String.format(
+                    "You are not allowed to use the status code %d",
+                    code
+                )
+            );
         }
     }
 
