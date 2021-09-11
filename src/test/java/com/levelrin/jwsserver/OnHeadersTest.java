@@ -54,4 +54,27 @@ final class OnHeadersTest {
         );
     }
 
+    @Test
+    public void shouldCombineDuplicatedHeaders() {
+        final List<String> lines = new ArrayList<>();
+        lines.add("GET /path/to/websocket/endpoint HTTP/1.1");
+        lines.add("Sec-WebSocket-Extensions: foo");
+        lines.add("Sec-WebSocket-Extensions: bar; baz=2");
+        lines.add("");
+        final Map<String, String> actual = new HashMap<>();
+        new OnHeaders(
+            lines,
+            headers -> {
+                actual.putAll(headers);
+                return Mockito.mock(WsServer.class);
+            }
+        ).start();
+        MatcherAssert.assertThat(
+            actual,
+            CoreMatchers.allOf(
+                Matchers.hasEntry("SEC-WEBSOCKET-EXTENSIONS", "foo, bar; baz=2")
+            )
+        );
+    }
+
 }
