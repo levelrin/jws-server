@@ -49,10 +49,19 @@ public final class OnHeaders implements WsServer {
                 break;
             }
             final String[] pair = line.split(":", 2);
-            headers.put(
-                pair[0].trim().toUpperCase(Locale.ROOT),
-                pair[1].trim()
-            );
+            final String name = pair[0].trim().toUpperCase(Locale.ROOT);
+            final String currentValue = pair[1].trim();
+            final String value;
+            if (headers.containsKey(name)) {
+                value = String.format(
+                    "%s, %s",
+                    headers.get(name),
+                    currentValue
+                );
+            } else {
+                value = currentValue;
+            }
+            headers.put(name, value);
         }
         this.withHeaders.apply(headers).start();
     }
