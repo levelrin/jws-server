@@ -61,7 +61,7 @@ new JwsGuide()
 
 Connect to your server like this (JavaScript):
 ```javascript
-const socket = new WebSocket('ws://localhost:42069');
+const socket = new WebSocket('ws://localhost:42069/yoi');
 ```
 
 ## Dependency
