@@ -8,6 +8,7 @@
 
 jws stands for Java WebSocket.
 It is a Java library for building a WebSocket server.
+It supports [rfc6455](https://datatracker.ietf.org/doc/html/rfc6455).
 
 ## Quick Start
 
@@ -56,6 +57,9 @@ new JwsGuide()
                 // for that session.
             }
         }
+    ).reaction(
+        // You can have multiple reactions like this.
+        new MoreReaction()
     ).ready().go();
 ```
 
