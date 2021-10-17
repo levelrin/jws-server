@@ -171,7 +171,7 @@ publishing {
 
             pom {
                 name = 'jws-server'
-                description = 'Java library for building a WebSocket based server.'
+                description = 'Java library for building a WebSocket server.'
                 url = 'https://github.com/levelrin/jws-server'
                 licenses {
                     license {
