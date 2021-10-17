@@ -33,8 +33,8 @@ public interface Reaction {
 
     /**
      * Do something when the WebSocket communication starts.
-     * For example, you can use the {@param session} to send a message to the client.
-     * Or, you can store the {@param session} and use it to send a message to the client later.
+     * For example, you can use the session to send a message to the client.
+     * Or, you can store the session and use it to send a message to the client later.
      * @param session A new connection object.
      */
     void onStart(Session session);

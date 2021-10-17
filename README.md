@@ -74,12 +74,18 @@ You just need to add the dependency like so:
 
 Gradle:
 ```groovy
-TBD.
+dependencies {
+    implementation 'com.levelrin:jws-server:0.1.0'
+}
 ```
 
 Maven:
 ```xml
-TBD.
+<dependency>
+  <groupId>com.levelrin</groupId>
+  <artifactId>jws-server</artifactId>
+  <version>0.1.0</version>
+</dependency>
 ```
 
 Requirements:
