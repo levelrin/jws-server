@@ -40,14 +40,13 @@ final class ServerSocketGuideTest {
     @Test
     public void portShouldBeUsedInServerSocket() {
         final Map<String, Object> dependencies = new HashMap<>();
-        final int expected = 333;
+        final int expected = 3333;
         new ServerSocketGuide(dependencies).port(expected);
         final ServerSocket fromMap = (ServerSocket) dependencies.get(KEY);
         MatcherAssert.assertThat(
             fromMap.getLocalPort(),
             CoreMatchers.equalTo(expected)
         );
-
     }
 
     @Test
